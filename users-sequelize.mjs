@@ -6,6 +6,7 @@ import Sequelize from "sequelize";
 import { default as jsyaml } from 'js-yaml';
 import { promises as fs } from 'fs';
 import * as util from 'util';
+
 import DBG from 'debug';
 const log = DBG('users:model-users');
 const error = DBG('users:error');
@@ -55,6 +56,7 @@ export async function connectDB() {
 
 
     SQUser.init({
+        
         username: { type: Sequelize.STRING, unique: true },
         password: Sequelize.STRING,
         provider: Sequelize.STRING,
@@ -91,7 +93,7 @@ export function userParams(req) {
 
 
 export function sanitizedUser(user) {
-    // log(util.inspect(user));
+     log(util.inspect(user));
     var ret = {
         id: user.username,
         username: user.username,

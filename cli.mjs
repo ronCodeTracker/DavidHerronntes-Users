@@ -14,6 +14,9 @@ var client_protocol;
 var authid = 'them';
 var authcode = 'D4ED43C0-8BD6-4FE2-B358-7C0E230D11EF';
 
+console.log("hello One");
+
+
 const client = (program) => {
 
     if (typeof process.env.PORT === 'string') client_port = Number.parseInt(process.env.PORT);
@@ -56,11 +59,11 @@ program
     .option('--given-name <givenName>', 'Given name, or first name, of the user')
     .option('--middle-name <middleName>', 'Middle name of the user')
     .option('--email <email>', 'Email address for the user')
-    .action(async (username, cmdObj) => {
-        // console.log(`add ${username} cmdObj ${util.inspect(cmdObj)}`);
+    .action((username, cmdObj) => {
+        console.log(`add ${username} cmdObj ${util.inspect(cmdObj)}`);
         const topost = {
             username,
-            password: await hashpass(cmdObj.password),
+            password: cmdObj.password, provider: "local",
             provider: "local",
             familyName: cmdObj.familyName,
             givenName: cmdObj.givenName,
@@ -69,7 +72,9 @@ program
             photos: []
         };
         if (typeof cmdObj.email !== 'undefined') topost.emails.push(cmdObj.email);
-        // console.log(`tocreate `, topost);
+        console.log(`tocreate `, topost);
+
+        console.log("Hello Three");
 
         client(program).post('/create-user', topost,
             (err, req, res, obj) => {
@@ -92,10 +97,10 @@ program
     .option('--given-name <givenName>', 'Given name, or first name, of the user')
     .option('--middle-name <middleName>', 'Middle name of the user')
     .option('--email <email>', 'Email address for the user')
-    .action(async (username, cmdObj) => {
+    .action((username, cmdObj) => {
         const topost = {
             username,
-            password: await hashpass(cmdObj.password),
+            password: cmdObj.password, provider: "local",
             provider: "local",
             familyName: cmdObj.familyName,
             givenName: cmdObj.givenName,
@@ -105,10 +110,43 @@ program
         };
         if (typeof cmdObj.email !== 'undefined') topost.emails.push(cmdObj.email);
 
+        console.log("Hello Four");
+
         client(program).post('/find-or-create', topost,
             (err, req, res, obj) => {
                 if (err) console.error(err.stack);
                 else console.log('Found or Created ' + util.inspect(obj));
             });
     });
+
+
+
+program
+     .command('find <username>')
+     .description('Find a user in the user server')
+     .action((username, cmdObj) => {
+          client(program).get(`/find/${username}`,
+                (err, req, res, obj) => {
+                 if (err) console.error(err.stack);
+                 else console.log('Found ' + util.inspect(obj));
+                });
+     });
+
+
+program
+    .command('list-users')
+    .description('List all users in the user server')
+    .action((cmdObj) => {
+        client(program).get('/list', (err, req, res, obj) => {
+
+            if (err) console.error(err.stack);
+            else console.log(obj);
+
+        });
+    });
+
+
+
+program.parse(process.argv);
+
 
