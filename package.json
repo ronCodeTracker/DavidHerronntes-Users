@@ -1,7 +1,7 @@
 {
   "name": "user-auth-server",
   "version": "1.0.0",
-  "description": "User information database",
+  "description": "User information database *****",
   "main": "user-server.mjs",
   "scripts": {
     "start": "cross-env DEBUG=users:* PORT=5858 SEQUELIZE_CONNECT=sequelize-sqlite.yaml node ./user-server.mjs"
