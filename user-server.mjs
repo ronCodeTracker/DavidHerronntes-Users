@@ -169,9 +169,6 @@ server.get('/find/:username',(req, res, next) => {
 
 
 
-
-
-
 async function runProcess2(req, res, next) {
 
 
@@ -211,6 +208,8 @@ async function runProcess3(req, res, next) {
     try {
         await connectDB();
         let user = await findOneUser(req.params.username);
+        
+
         if (!user) {
             user = await createUser(req);
             if (!user) throw new Error('No user created');
@@ -260,5 +259,114 @@ async function runProcess4(req, res, next) {
         next(false);
     }
 
+
+}
+
+
+server.post('/update-user/:username', (req, res, next) => {
+
+    runProcess5(req, res, next);
+
+});
+
+
+
+async function runProcess5(req, res, next) {
+
+    try {
+             await connectDB();
+             let toupdate = userParams(req);
+             console.log("req    " + req);
+        console.log("toupdate " + toupdate);
+             console.log("req.params.username " + req.params.username);
+             await SQUser.update(toupdate, { where: { username: req.params.username } });
+             console.log("SQUser spot");
+             const result = await findOneUser(req.params.username);
+             res.contentType = 'json';
+             console.log("result" + result );
+             res.send(result);
+             next(false);
+        
+
+    } catch (err) {
+        res.send(500, err);
+        next(false);
+    }
+}
+
+
+
+server.del('/destroy/:username', (req, res, next) => {
+
+        runProcess6(req, res, next);
+
+})
+
+
+
+async function runProcess6(req, res, next) {
+
+
+      try {
+          await connectDB();
+          const user = await SQUser.findOne({ where: { username: req.params.username } });
+          if (!user) {
+              res.send(404, new Error('User not found'));
+          }
+          else {
+              user.destroy();
+              res.conentType = 'json';
+              res.send({});
+          }          
+          next(false);
+
+     } catch (err) {
+          res.send(500, err);
+          next(false);
+     }
+     
+}
+
+
+
+server.post('/password-check', (req, res, next) => {
+
+    runProcess7(req, res, next);
+
+
+
+    });
+
+
+async function runProcess7(req, res, next) {
+
+    try {
+        await connectDB();
+        const user = await SQUser.findOne({ where: { username: req.params.username } });
+        let checked;
+        if (!user) {
+            checked = {
+                check: false, username: req.params.username, message: 'User not found'
+            };
+
+        } else if (user.username === req.params.username && user.password === req.params.password) {
+            checked = {
+                check: true, username: user.username
+            };
+        } else {
+            checked = {
+                check: false, username: req.params.username, message: 'Incorrect password'
+            };
+
+        }
+
+        res.conentType = 'json';
+        res.send(checked);
+        next(false);
+    } catch (err) {
+
+        res.send(500, err);
+        next(false);
+    }
 
 }

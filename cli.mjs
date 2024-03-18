@@ -147,6 +147,68 @@ program
 
 
 
+program
+    .command('update <username>')
+    .description('Update a user in the user server')
+    .option('--password <password>', 'Password for new user')
+    .option('--family-name <familyName>', 'Family name, or last name, of the user')
+    .option('--given-name <givenName>', 'Given name, or first name, of the user')
+    .option('--middle-name <middleName>', 'Middle name of the user')
+    .option('--email <email>', 'Email address for the user')
+    .action((username, cmdObj) => {
+        const topost = {
+            username,
+            password: cmdObj.password,            
+            familyName: cmdObj.familyName,
+            givenName: cmdObj.givenName,
+            middleName: cmdObj.middleName,
+            emails: [],
+            photos: []
+        };
+
+     if (typeof cmdObj.email !== 'undefined') topost.emails.push(cmdObj.email);
+     client(program).post(`/update-user/${username}`, topost, (err, req, res, obj) => {
+
+        if (err) console.error(err.stack);
+        else console.log('Updated ' + util.inspect(obj));
+
+        });
+    });
+
+
+
+
+program
+    .command('destroy <username>')
+    .description('Delete a user in the user server')
+    .action((username, cmdObj) => {
+        client(program).del(`/destroy/${username}`, (err, req, res, obj) => {
+
+            if (err) console.error(err.stack);
+            else console.log('Deleted  -  result=   ' + util.inspect(obj));
+
+        });
+    });
+
+
+program
+    .command('password-check <username> <password>')
+    .description('Check whether the user password is correct')
+.action((username, password, cmdObj) => {        
+    client(program).post('/password-check', {  username, password }, (err, req, res, obj) => {
+
+            if (err) console.error(err.stack);
+            else console.log(obj);
+
+        });
+    });
+
+
+
+
+
+
+
 program.parse(process.argv);
 
 
